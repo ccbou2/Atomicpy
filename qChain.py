@@ -3,7 +3,7 @@ import time
 import copy
 import h5py
 import numpy as np 
-from capy import *
+# from capy import *
 from utility import *
 from operators import *
 from qutip import Bloch

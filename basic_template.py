@@ -1,4 +1,4 @@
-from capy import *
+# from capy import *
 from qChain import *
 from utility import *
 from operators import *
