@@ -53,10 +53,10 @@ if __name__ == "__main__":
     #exit()
 
     # initialise spin system in up state
-    atom = SpinSystem(init="zero")
+    atom = SpinSystem(init="super")
 
     # evolve state under system Hamiltonian
-    time, probs, pnts = atom.state_evolve(t=[0, 1e-4, 1e-7],             # time range and step size to evolve for
+    time, probs, pnts = atom.state_evolve(t=[0, 1e-2, 1e-7],             # time range and step size to evolve for
                                           hamiltonian=ham.hamiltonian,   # system Hamiltonian
                                           project=meas1["0"],            # projection operator for measurement
                                           bloch=[True, 1])               # Whether to save pnts for bloch state 
