@@ -20,10 +20,11 @@ if __name__ == "__main__":
     # Fx = lambda t: wrf(t)
 
     # Define frequencies for the interacting EM field, detuning, Rabi frequency & phase, all in Hz
-    w = 1000;   # Get lab value
-    det = 0;    # Get lab value
-    rabi = 50;  # Get lab value 
+    w0 = gyro;   # lab value for bias field splitting
+    det = 100;    # lab value for detuning
+    rabi = 5000;    # lab value for Rabi frequency
     phi = 0;
+    w = w0 + det;
 
     # Create lab frame fields for Fx and Fz
     xf = lambda t: 2*rabi*np.cos(w*t - phi)
@@ -39,7 +40,7 @@ if __name__ == "__main__":
                          "custom"],                                # Fz is a fade field 
                          "freqb": [0, 0, 0],                   # frequency in Hz of each field vector
                          "tau":   [None, None, 1e-4],               # time event of pulse along each axis
-                         "amp":   [gyro/gyro, 0/gyro, 1/gyro],        # amplitude in Gauss -> 1 Gauss ~= 700000 Hz precession
+                         "amp":   [gyro/gyro, 0/gyro, -gyro/gyro],        # amplitude in Gauss -> 1 Gauss ~= 700000 Hz precession
                          "misc":  [Fx, None, Fz]}          # misc parameters
 
     # create specified magnetic fields and resulting Hamiltonian
