@@ -21,26 +21,26 @@ if __name__ == "__main__":
 
     # Define frequencies for the interacting EM field, detuning, Rabi frequency & phase, all in Hz
     w0 = gyro;   # lab value for bias field splitting
-    det = 100;    # lab value for detuning
-    rabi = 5000;    # lab value for Rabi frequency
+    det = 0;    # lab value for detuning
+    rabi = 10^4;    # lab value for Rabi frequency
     phi = 0;
     w = w0 + det;
 
     # Create lab frame fields for Fx and Fz
-    xf = lambda t: 2*rabi*np.cos(w*t - phi)
+    xf = lambda t: 2*rabi*np.cos(2*np.pi*w*t - phi)/gyro
     Fx = lambda t: xf(t)
 
-    zf = lambda t: det - w
+    zf = lambda t: (det - w)/gyro
     Fz = lambda t: zf(t)
 
 
     # define generic Hamiltonian parameters with Zeeman splitting and rf dressing
-    params = {"struct": ["custom",                              # Fx is a sinusoidal dressing field field
+    params = {"struct": ["custom",                              # Fx is a sinusoidal dressing field
                          "constant",                              # Fy is a constant field
                          "custom"],                                # Fz is a fade field 
                          "freqb": [0, 0, 0],                   # frequency in Hz of each field vector
                          "tau":   [None, None, 1e-4],               # time event of pulse along each axis
-                         "amp":   [gyro/gyro, 0/gyro, -gyro/gyro],        # amplitude in Gauss -> 1 Gauss ~= 700000 Hz precession
+                         "amp":   [1/gyro, 0/gyro, -1/gyro],        # amplitude in Gauss -> 1 Gauss ~= 700000 Hz precession
                          "misc":  [Fx, None, Fz]}          # misc parameters
 
     # create specified magnetic fields and resulting Hamiltonian
@@ -53,10 +53,10 @@ if __name__ == "__main__":
     #exit()
 
     # initialise spin system in up state
-    atom = SpinSystem(init="super")
+    atom = SpinSystem(init="zero")
 
     # evolve state under system Hamiltonian
-    time, probs, pnts = atom.state_evolve(t=[0, 1e-2, 1e-7],             # time range and step size to evolve for
+    time, probs, pnts = atom.state_evolve(t=[0, 1e-4, 1e-7],             # time range and step size to evolve for
                                           hamiltonian=ham.hamiltonian,   # system Hamiltonian
                                           project=meas1["0"],            # projection operator for measurement
                                           bloch=[True, 1])               # Whether to save pnts for bloch state 
