@@ -1,4 +1,5 @@
-from capy import *
+#!python3
+#from capy import *
 from operators import *
 from qChain import *
 from utility import *
@@ -15,11 +16,22 @@ if __name__ == "__main__":
     # time to evolve state for (seconds) 
     eperiod = 1e-4
 
-    # define B fields 
-    def Bx(t): return 2*1e4*np.cos(2*np.pi*gyro*t)
-    def By(t): return 0*(t/t)
-    def Bz(t): return gyro*(t/t)
+    # Define frequencies for the interacting EM field, detuning, Rabi frequency & phase, all in Hz
+    f0 = gyro;   # lab value for bias field splitting
+    det = 0;    # lab value for detuning
+    rabi = 1e4;    # lab value for Rabi frequency
+    phi = 0;
+    f = f0 + det;
 
+    # define B fields for lab frame
+    def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi)
+    def By(t): return 0 * (t/t)
+    def Bz(t): return (det - f) * (t/t)
+
+    # define B fields in first rotating frame
+    # def Bx(t): return rabi * np.cos(phi * (t/t))
+    # def By(t): return rabi * np.sin(phi * (t/t))
+    # def Bz(t): return det * (t/t)
 
     # define generic Hamiltonian parameters with Zeeman splitting and rf dressing
     params = {"struct": ["custom",           # Fx is a sinusoidal dressing field field
@@ -40,15 +52,22 @@ if __name__ == "__main__":
 
     # evolve state under system Hamiltonian
     start = time.time()
-    tdomain, probs, _ = atom.state_evolve(t=[1e-44, eperiod, 1/fs],          # time range and step size to evolve for
+    tdomain, probs, pnts = atom.state_evolve(t=[1e-44, eperiod, 1/fs],          # time range and step size to evolve for
                                           hamiltonian=ham.hamiltonian_cache, # system Hamiltonian
                                           cache=True,                        # whether to cache calculations (faster)
                                           project=meas1["0"],                # projection operator for measurement
-                                          bloch=[False, 100])                # Whether to save pnts for bloch state 
+                                          bloch=[True, 100])                # Whether to save pnts for bloch state 
                                                                              # and save interval
     end = time.time()
 
+
+    # frame_anaylser(atom.state_cache, frmame)
+
+
     print("Atomic state evolution over {} seconds with Fs = {:.2f} MHz took {:.3f} seconds".format(eperiod, fs/1e6, end-start))
     
+    # plot Bloch sphere
+    atom.bloch_plot(pnts)
+
     # plot |<0|psi(t)>|^2 against time
     atom.prob_plot(tdomain, probs)
