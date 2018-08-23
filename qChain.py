@@ -6,7 +6,7 @@ import numpy as np
 # from capy import *
 from utility import *
 from operators import *
-#from qutip import Bloch
+from qutip import Bloch
 from time import gmtime
 from IPython import embed
 import scipy.linalg as sla
