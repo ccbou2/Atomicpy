@@ -9,8 +9,15 @@ import matplotlib.pyplot as plt
 import git
 
 # use .yaml filetype for parameters, python package needed.
-
 repo = git.Repo(search_parent_directories=True)
+dirtyRepo = repo.is_dirty()
+print(dirtyRepo)
+
+if dirtyRepo is True:
+  status = input("Script has changed since last commit, continue? (y/n): ")
+  if status is 'n':
+    raise SystemExit
+
 sha = repo.head.object.hexsha
 commitID = sha[:7]
 print('Current commit version is ' + str(commitID))
