@@ -279,12 +279,13 @@ class SpinSystem(object):
         plt.ylabel("Probability")
         plt.annotate(commitText, xy=(0.85,0.97), xycoords = 'axes fraction', fontsize=12)
         plt.title(filename)
-        plt.show()
 
         if save is True:
             path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(filename) + '.png'
             print('Probabiblity plot saved to Sim Results folder')
             plt.savefig(path)
+
+        plt.show()
 
     def bloch_animate(self, pnts, name="Bloch_animate"):
         """
