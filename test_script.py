@@ -29,17 +29,43 @@ print('Current commit version is ' + str(commitID))
 # Run main script
 if __name__ == "__main__":
 
-    # sampling frequncy of unitary (Hz)
-    fs = 1e8
-    # time to evolve state for (seconds) 
-    eperiod = 1e-4
+    # Open desired .yaml parameter file, set by nameParams, and read data to yamlParams
+    nameParams = 'test'
+    fNameParams = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
+       + nameParams + '_params.yaml'
+    paramStream = open(fNameParams, 'r')
+    yamlParams = yaml.load(paramStream)
+    paramStream.close()
 
-    # Define frequencies for the interacting EM field, detuning, Rabi frequency & phase, all in Hz
-    f0 = gyro;   # lab value for bias field splitting
-    det = 0;    # lab value for detuning
-    rabi = 1e4;    # lab value for Rabi frequency
-    phi = 0;
-    f = f0 + det;
+    # Set frequencies from yamlParams
+    # sampling frequncy of unitary (Hz)
+    fs = yamlParams['stepFreq']
+    # time to evolve state for (seconds) 
+    eperiod = yamlParams['evolutionTime']
+    # bias frequency
+    f0 = yamlParams['biasFreq']
+    # detuning frequency
+    det = yamlParams['detuningFreq']
+    # rabi frequency
+    rabi = yamlParams['rabiFreq']
+    # phase offset
+    phi = yamlParams['phaseOffset']
+    # total frequency
+    f = f0 + det
+
+    # Legacy frequency parameter definitions, left for reference/use if yaml imports break
+
+    # # sampling frequncy of unitary (Hz)
+    # fs = 1e8
+    # # time to evolve state for (seconds) 
+    # eperiod = 1e-4
+
+    # # Define frequencies for the interacting EM field, detuning, Rabi frequency & phase, all in Hz
+    # f0 = gyro;   # lab value for bias field splitting
+    # det = 0;    # lab value for detuning
+    # rabi = 1e4;    # lab value for Rabi frequency
+    # phi = 0;
+    # f = f0 + det;
 
     # define B fields for lab frame
     def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi)
@@ -87,7 +113,7 @@ if __name__ == "__main__":
     tStamp = time.strftime( "%Y%m%dT%H%M%S")
 
     # Define whether we want to save plots
-    savePlots = False
+    savePlots = True
 
     # plot on Bloch sphere, saving timestamped filename if savePlots is true
     fNameBloch = str(tStamp) + '_blochplot'
@@ -100,16 +126,18 @@ if __name__ == "__main__":
 
     # Export parameters to timestamped .yaml file as record of parameters used for shot
     # can then load in to replicate 
-    fNameYaml = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
-       + str(tStamp) + '_params.yaml'
-    stream = open(fNameYaml, 'w+')
-    yaml.dump({'stepFreq': fs,
-      'evolutionTime': eperiod,
-      'biasFreq': f0,
-      'detuningFreq': det,
-      'rabiFreq': rabi,
-      'phaseOffset': phi,
-      'xField': Bx,
-      'yField': By,
-      'zField': Bz},
-       stream, default_flow_style=False)
+    # Note: Have added such that only saved when plots are saved
+    if savePlots is True:
+      fNameYaml = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
+         + str(tStamp) + '_params.yaml'
+      stream = open(fNameYaml, 'w+')
+      yaml.dump({'stepFreq': fs,
+        'evolutionTime': eperiod,
+        'biasFreq': f0,
+        'detuningFreq': det,
+        'rabiFreq': rabi,
+        'phaseOffset': phi},
+         stream, default_flow_style=False)
+      stream.close()
+
+      print('Parameters exported to .yaml file in ParameterFiles subfolder')

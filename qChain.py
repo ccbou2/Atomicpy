@@ -246,12 +246,11 @@ class SpinSystem(object):
         bloch = Bloch(fig=1)
         # add state
         bloch.add_points(points)
-        plt.show()
+        bloch.render()
 
         if save is True:
             print('Bloch plot saved to Sim Results folder')
             path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(filename) + '.png'
-            bloch.render()
             bloch.fig.savefig(path)
 
 
