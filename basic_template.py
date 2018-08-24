@@ -62,8 +62,13 @@ if __name__ == "__main__":
                                           bloch=[True, 1])               # Whether to save pnts for bloch state 
                                                                          # and save interval
 
-    atom.bloch_plot(pnts)                                                                    
-    atom.prob_plot(time, probs)                  
+    plt.figure(1)
+    atom.bloch_plot(pnts)   
+    plt.savefig()    
+
+    plt.figure(2)                                                          
+    atom.prob_plot(time, probs)   
+    plt.savefig()               
 
                                         
 

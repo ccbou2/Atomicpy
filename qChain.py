@@ -229,7 +229,7 @@ class SpinSystem(object):
 
 
 
-    def bloch_plot(self, points=None):
+    def bloch_plot(self, filename, points=None, save=False):
         """
         Plot the current state on the Bloch sphere using
         qutip. 
@@ -243,10 +243,16 @@ class SpinSystem(object):
             assert len(points) == 3, "System dimension must be spin 1/2 for Bloch sphere plot"
         
         # create instance of 3d plot
-        bloch = Bloch()
+        bloch = Bloch(fig=1)
         # add state
         bloch.add_points(points)
-        bloch.show()
+        plt.show()
+
+        if save is True:
+            print('Bloch plot saved to Sim Results folder')
+            path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(filename) + '.png'
+            bloch.render()
+            bloch.fig.savefig(path)
 
 
     def get_bloch_vec(self, rho):
@@ -258,18 +264,25 @@ class SpinSystem(object):
         w = np.real(rho[0,0] - rho[1,1])
         return [u,v,w]
 
-    def prob_plot(self, time, probs, title="Probability plot"):
+    def prob_plot(self, time, probs, filename, save=False):
         """
         Formatted code for plot (why must plot code always be hideous?)
         """
+
+        plt.figure(2)
         plt.plot(time, probs)
         plt.ylim([np.min(probs)*0.95, np.max(probs)*1.05])
         plt.xlim([time[0], time[-1]])
         plt.grid()
         plt.xlabel("Time (s)")
         plt.ylabel("Probability")
-        plt.title(title)
+        plt.title(filename)
         plt.show()
+
+        if save is True:
+            path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(filename) + '.png'
+            print('Probabiblity plot saved to Sim Results folder')
+            plt.savefig(path)
 
     def bloch_animate(self, pnts, name="Bloch_animate"):
         """

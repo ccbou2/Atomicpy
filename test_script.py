@@ -6,8 +6,14 @@ from utility import *
 import numpy as np 
 import time
 import matplotlib.pyplot as plt
+import git
 
+# use .yaml filetype for parameters, python package needed.
 
+repo = git.Repo(search_parent_directories=True)
+sha = repo.head.object.hexsha
+commitID = sha[:7]
+print('Current commit version is ' + str(commitID))
 
 if __name__ == "__main__":
 
@@ -66,8 +72,13 @@ if __name__ == "__main__":
 
     print("Atomic state evolution over {} seconds with Fs = {:.2f} MHz took {:.3f} seconds".format(eperiod, fs/1e6, end-start))
     
+    # Save timestamp for current sim
+    tStamp = time.strftime( "%Y%m%dT%H%M%S")
+
     # plot Bloch sphere
-    atom.bloch_plot(pnts)
+    fNameBloch = str(tStamp) + '_blochplot'
+    atom.bloch_plot(fNameBloch, pnts, True)  
 
     # plot |<0|psi(t)>|^2 against time
-    atom.prob_plot(tdomain, probs)
+    fNameProb = str(tStamp) + '_probplot'
+    atom.prob_plot(tdomain, probs, fNameProb, True)
