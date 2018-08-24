@@ -7,21 +7,26 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 import git
+import yaml
 
 # use .yaml filetype for parameters, python package needed.
+
+# Check git repository status
 repo = git.Repo(search_parent_directories=True)
 dirtyRepo = repo.is_dirty()
-print(dirtyRepo)
 
+# If repository is dirty i.e. out of date, ask for input to continue and exit if desired
 if dirtyRepo is True:
   status = input("Script has changed since last commit, continue? (y/n): ")
   if status is 'n':
     raise SystemExit
 
+# Take current commit ID and print
 sha = repo.head.object.hexsha
 commitID = sha[:7]
 print('Current commit version is ' + str(commitID))
 
+# Run main script
 if __name__ == "__main__":
 
     # sampling frequncy of unitary (Hz)
@@ -76,16 +81,35 @@ if __name__ == "__main__":
 
     # frame_anaylser(atom.state_cache, frmame)
 
-
     print("Atomic state evolution over {} seconds with Fs = {:.2f} MHz took {:.3f} seconds".format(eperiod, fs/1e6, end-start))
     
     # Save timestamp for current sim
     tStamp = time.strftime( "%Y%m%dT%H%M%S")
 
-    # plot Bloch sphere
-    fNameBloch = str(tStamp) + '_blochplot'
-    atom.bloch_plot(fNameBloch, pnts, True)  
+    # Define whether we want to save plots
+    savePlots = False
 
-    # plot |<0|psi(t)>|^2 against time
+    # plot on Bloch sphere, saving timestamped filename if savePlots is true
+    fNameBloch = str(tStamp) + '_blochplot'
+    atom.bloch_plot(fNameBloch, pnts, savePlots)  
+
+    # plot |<0|psi(t)>|^2 against time, saving timestamed fikename if savePlots is true
+    # with commit ID annotated to plot
     fNameProb = str(tStamp) + '_probplot'
-    atom.prob_plot(tdomain, probs, fNameProb, True)
+    atom.prob_plot(tdomain, probs, fNameProb, commitID, savePlots)
+
+    # Export parameters to timestamped .yaml file as record of parameters used for shot
+    # can then load in to replicate 
+    fNameYaml = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
+       + str(tStamp) + '_params.yaml'
+    stream = open(fNameYaml, 'w+')
+    yaml.dump({'stepFreq': fs,
+      'evolutionTime': eperiod,
+      'biasFreq': f0,
+      'detuningFreq': det,
+      'rabiFreq': rabi,
+      'phaseOffset': phi,
+      'xField': Bx,
+      'yField': By,
+      'zField': Bz},
+       stream, default_flow_style=False)

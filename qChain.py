@@ -264,10 +264,12 @@ class SpinSystem(object):
         w = np.real(rho[0,0] - rho[1,1])
         return [u,v,w]
 
-    def prob_plot(self, time, probs, filename, save=False):
+    def prob_plot(self, time, probs, filename, commitVersion,save=False):
         """
         Formatted code for plot (why must plot code always be hideous?)
         """
+
+        commitText = 'commit: ' + str(commitVersion)
 
         plt.figure(2)
         plt.plot(time, probs)
@@ -276,6 +278,7 @@ class SpinSystem(object):
         plt.grid()
         plt.xlabel("Time (s)")
         plt.ylabel("Probability")
+        plt.annotate(commitText, xy=(0.85,0.97), xycoords = 'axes fraction', fontsize=12)
         plt.title(filename)
         plt.show()
 
