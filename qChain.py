@@ -285,7 +285,7 @@ class SpinSystem(object):
             print('Probabiblity plot saved to Sim Results folder')
             plt.savefig(path)
 
-        #plt.show()
+        # plt.show()
 
     def project_plot(self, time, projections, filename, commitVersion,save=False):
         """
@@ -310,7 +310,7 @@ class SpinSystem(object):
             print('Projection plot saved to Sim Results folder')
             plt.savefig(path)
 
-        plt.show()
+        # plt.show()
 
     def bloch_animate(self, pnts, name="Bloch_animate"):
         """

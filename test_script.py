@@ -8,6 +8,7 @@ import time
 import matplotlib.pyplot as plt
 import git
 import yaml
+from demodulating_faraday_file import *
 
 # use .yaml filetype for parameters, python package needed.
 
@@ -133,7 +134,21 @@ if __name__ == "__main__":
     atom.project_plot(tdomain, fxProj, fNameProb, commitID, savePlots)
 
     # next, want to use James' code to try demodulate <Fx>
-    # TODO ADD HERE
+    # timeTest = np.arange(1e-44, eperiod, 1/fs)
+    # testSignal = np.zeros(len(timeTest));
+    # for i in range(1, len(timeTest)):
+    #   t = timeTest[i]
+    #   testSignal[i] =  np.sin(2 * np.pi * f0 * t) #+ np.cos(2 * np.pi * rabi * t)
+
+    # plt.figure()
+    # plt.plot(timeTest, testSignal)
+    # plt.xlim(min(timeTest), max(timeTest))
+    # plt.show()
+
+    demodFxProj = demod_from_array(fxProj, faraday_sampling_rate = fs, reference_frequency = f0, \
+     lowpas_freq = 15000, plot_demod = True, save = savePlots, time_stamp = str(tStamp))
+
+    plt.show()
 
     # Export parameters to timestamped .yaml file as record of parameters used for shot
     # can then load in to replicate 
