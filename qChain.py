@@ -285,6 +285,31 @@ class SpinSystem(object):
             print('Probabiblity plot saved to Sim Results folder')
             plt.savefig(path)
 
+        #plt.show()
+
+    def project_plot(self, time, projections, filename, commitVersion,save=False):
+        """
+        Formatted code for plot (why must plot code always be hideous?)
+        """
+
+        commitText = 'commit: ' + str(commitVersion)
+        # projections = 2*probs - 1;
+
+        plt.figure(3)
+        plt.plot(time, projections)
+        plt.ylim([np.min(projections)*0.95, np.max(projections)*1.05])
+        plt.xlim([time[0], time[-1]])
+        plt.grid()
+        plt.xlabel("Time (s)")
+        plt.ylabel("F_x projection (<F_x>)")
+        plt.annotate(commitText, xy=(0.85,0.97), xycoords = 'axes fraction', fontsize=12)
+        plt.title(filename)
+
+        if save is True:
+            path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(filename) + '.png'
+            print('Projection plot saved to Sim Results folder')
+            plt.savefig(path)
+
         plt.show()
 
     def bloch_animate(self, pnts, name="Bloch_animate"):

@@ -99,7 +99,7 @@ if __name__ == "__main__":
     tdomain, probs, pnts = atom.state_evolve(t=[1e-44, eperiod, 1/fs],          # time range and step size to evolve for
                                           hamiltonian=ham.hamiltonian_cache, # system Hamiltonian
                                           cache=True,                        # whether to cache calculations (faster)
-                                          project=meas1["0"],                # projection operator for measurement
+                                          project=meas1["+"],                # projection operator for measurement
                                           bloch=[True, 100])                # Whether to save pnts for bloch state 
                                                                              # and save interval
     end = time.time()
@@ -113,16 +113,27 @@ if __name__ == "__main__":
     tStamp = time.strftime( "%Y%m%dT%H%M%S")
 
     # Define whether we want to save plots
-    savePlots = True
+    savePlots = False
 
     # plot on Bloch sphere, saving timestamped filename if savePlots is true
     fNameBloch = str(tStamp) + '_blochplot'
     atom.bloch_plot(fNameBloch, pnts, savePlots)  
 
-    # plot |<0|psi(t)>|^2 against time, saving timestamed fikename if savePlots is true
+    # plot |<0|psi(t)>|^2 against time, saving timestamed filename if savePlots is true
     # with commit ID annotated to plot
     fNameProb = str(tStamp) + '_probplot'
     atom.prob_plot(tdomain, probs, fNameProb, commitID, savePlots)
+
+    # compute projection <Fx>
+    fxProj = 2*probs - 1;
+
+    # plot <F_x> against time, saving timestamed filename if savePlots is true
+    # with commit ID annotated to plot
+    fNameProb = str(tStamp) + '_projectionplot'
+    atom.project_plot(tdomain, fxProj, fNameProb, commitID, savePlots)
+
+    # next, want to use James' code to try demodulate <Fx>
+    # TODO ADD HERE
 
     # Export parameters to timestamped .yaml file as record of parameters used for shot
     # can then load in to replicate 
