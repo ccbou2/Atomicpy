@@ -122,7 +122,7 @@ if __name__ == "__main__":
 		tStamp = time.strftime( "%Y%m%dT%H%M%S")
 
 		# Define whether we want to save plots
-		savePlots = False
+		savePlots = True
 
 		# plot on Bloch sphere, saving timestamped filename if savePlots is true
 		fNameBloch = str(tStamp) + '_blochplot'
