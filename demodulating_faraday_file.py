@@ -38,7 +38,7 @@ def find_index_from_freq(freq, frequency_step):
 	index = int(round(freq/frequency_step))
 	return index
 
-def make_periodogram(data, actual_capture_rate, filename, saveFig = False, plot_graph = False, title = 'Periodogram', start_freq = 0, end_freq = 'end'):
+def make_periodogram(data, actual_capture_rate, filename, saveFig = False, plot_graph = False, title = 'Periodogram', start_freq = 0, end_freq = 'end', label = ''):
 	""" 
 	Returns a periodogram of data, with the option to plot it as well while selecting the 
 	plot range (in frequency).
@@ -60,10 +60,11 @@ def make_periodogram(data, actual_capture_rate, filename, saveFig = False, plot_
 			end_index = find_index_from_freq(end_freq, f[1])
 			assert end_index<len(f), "Error in make_periodogram; end index is too long for array"
 		plt.figure(5, figsize = (10,15))
-		plt.plot(f[start_index:end_index], Pxx_spec[start_index:end_index])
+		plt.plot(f[start_index:end_index], Pxx_spec[start_index:end_index], label = label)
 		plt.title(filename)
 		plt.xlabel('Frequency (Hz)')
 		plt.ylabel('Amplitude')
+		plt.grid()
 
 		if saveFig is True:
 			path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(filename) + '.png'
@@ -131,7 +132,7 @@ def demod_from_h5(h5file_name, h5data_path, faraday_sampling_rate = 5e6, start_t
 	
 	return decimated_demod
 
-def demod_from_array(mod_array, faraday_sampling_rate = 5e6, start_time = 0, end_time = 'max', reference_frequency = 736089.8, reference_phase_deg = 0, lowpas_freq = 10000, plot_demod = False, decimate_factor = 4, time_stamp = '', save = False):
+def demod_from_array(mod_array, faraday_sampling_rate = 5e6, start_time = 0, end_time = 'max', reference_frequency = 736089.8, reference_phase_deg = 0, lowpas_freq = 10000, plot_demod = False, decimate_factor = 4, time_stamp = '', label = '', save = False):
 	""" 
 	Sweet lord above this function washes the dishes as well. In summary it opens a h5 
 	file, in the same directory as the file, extracts data according to specified 
@@ -171,10 +172,12 @@ def demod_from_array(mod_array, faraday_sampling_rate = 5e6, start_time = 0, end
 
 	if plot_demod == True:
 		plt.figure(4, figsize = (10,7.5))
-		plt.plot(time_axis, demodulated)
+		plt.plot(time_axis, demodulated, label = label)
 		plt.xlabel('Time (s)')
 		plt.ylabel('Demodulated <Fx>')
+		plt.xlim(time_axis[0], time_axis[-1])
 		plt.title(fNameDemod)
+		plt.grid()
 
 		if save is True:
 			path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(fNameDemod) + '.png'
@@ -182,7 +185,7 @@ def demod_from_array(mod_array, faraday_sampling_rate = 5e6, start_time = 0, end
 			plt.savefig(path)
 			
 	fNamePeriodogram = str(time_stamp) + '_demod_periodogram'
-	freq, amp = make_periodogram(demodulated, faraday_sampling_rate, fNamePeriodogram, saveFig = save, plot_graph = plot_demod, start_freq = 0, end_freq = 20000)
+	freq, amp = make_periodogram(demodulated, faraday_sampling_rate, fNamePeriodogram, saveFig = save, plot_graph = plot_demod, start_freq = 0, end_freq = 20000, label = label)
 
 	""" decimating data """
 	# decimated_demod = signal.decimate(demodulated, decimate_factor, n=None, ftype='iir', axis=-1, zero_phase=True)

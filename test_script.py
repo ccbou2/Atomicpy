@@ -32,7 +32,7 @@ print('Current commit version is ' + str(commitID))
 if __name__ == "__main__":
 
 		# Open desired .yaml parameter file, set by nameParams, and read data to yamlParams
-		nameParams = 'test_v2'
+		nameParams = 'test_v3'
 		fNameParams = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
 			 + nameParams + '_params.yaml'
 		paramStream = open(fNameParams, 'r')
@@ -52,11 +52,12 @@ if __name__ == "__main__":
 		rabi = yamlParams['rabiFreq']
 		# phase offset
 		phi = yamlParams['phaseOffset']
+		# phi = 0
 		# total frequency
 		f = f0 + det
 		# low pass filter frequency
 		if 'lowPassFreq' in yamlParams:
-			fPass = yamlParams['lowPassFreq']
+			fPass = yamlParams['lowPassFreq'] 
 			runDemod = True
 		else:
 			runDemod = False
@@ -76,7 +77,7 @@ if __name__ == "__main__":
 		# f = f0 + det;
 
 		# define B fields for lab frame
-		def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi)
+		def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi * np.pi/180)
 		def By(t): return 0 * (t/t)
 		def Bz(t): return (det - f) * (t/t)
 
@@ -108,7 +109,7 @@ if __name__ == "__main__":
 																					hamiltonian=ham.hamiltonian_cache, # system Hamiltonian
 																					cache=True,                        # whether to cache calculations (faster)
 																					project=meas1["+"],                # projection operator for measurement
-																					bloch=[True, 100])                # Whether to save pnts for bloch state 
+																					bloch=[True, 1])                # Whether to save pnts for bloch state 
 																																						 # and save interval
 		end = time.time()
 
@@ -121,7 +122,7 @@ if __name__ == "__main__":
 		tStamp = time.strftime( "%Y%m%dT%H%M%S")
 
 		# Define whether we want to save plots
-		savePlots = True
+		savePlots = False
 
 		# plot on Bloch sphere, saving timestamped filename if savePlots is true
 		fNameBloch = str(tStamp) + '_blochplot'
@@ -132,18 +133,69 @@ if __name__ == "__main__":
 		fNameProb = str(tStamp) + '_probplot'
 		atom.prob_plot(tdomain, probs, fNameProb, commitID, savePlots)
 
+		# plt.show()
+		# raise SystemExit
+
 		# compute projection <Fx>
 		fxProj = 2*probs - 1;
 
 		# plot <F_x> against time, saving timestamed filename if savePlots is true
 		# with commit ID annotated to plot
 		fNameProb = str(tStamp) + '_projectionplot'
+		# atom.project_plot(tdomain[1:2000], fxProj[1:2000], fNameProb, commitID, savePlots)
 		atom.project_plot(tdomain, fxProj, fNameProb, commitID, savePlots)
 
+		# Overlay dressing field
+		# dressField = np.cos(2 * np.pi * f * tdomain[1:100] - (phi * np.pi/180))
+		# dressField = np.cos(2 * np.pi * f * tdomain)
+		# plt.plot(tdomain[1:2000],dressField[1:2000])
+
+		# test function
+		testTime = np.arange(1e-44,eperiod,1/fs)
+		testSignal = np.sin(2*np.pi*f0*testTime - phi * np.pi/180)
+
+		# compute & plot fft of signal to try figure out why we have this phase error
+		# ftProj = np.fft.fft(fxProj); # Making a fourier transform
+		# absftProj = np.abs(ftProj);
+		# ftFreqs = np.fft.fftfreq(len(testTime), 1/fs); 
+		# plt.figure(6)
+		# plt.plot(ftFreqs, ftProj)
+
 		# next, want to use James' code to try demodulate <Fx>
+		# faraday_sampling_rate = fs
 		if runDemod is True:
-			demodFxProj = demod_from_array(fxProj, faraday_sampling_rate = fs, reference_frequency = f0, \
-				lowpas_freq = fPass, plot_demod = True, save = savePlots, time_stamp = str(tStamp))
+			demodFxProjQ = demod_from_array(fxProj, reference_frequency = f, faraday_sampling_rate = fs, \
+				lowpas_freq = fPass, plot_demod = True, save = savePlots, time_stamp = str(tStamp), label = 'Q(t)')
+			demodFxProjI = demod_from_array(fxProj, reference_frequency = f, faraday_sampling_rate = fs, \
+				reference_phase_deg = 90, lowpas_freq = fPass, plot_demod = True, save = savePlots, time_stamp = str(tStamp), label = 'I(t)')
+			plt.figure(4)
+			plt.legend()
+			plt.grid()
+			plt.figure(5)
+			plt.legend()
+			plt.grid()
+
+		# Check arctangent of the two components Q and I of the demodulated <Fx> projection
+		phasecheck = np.arctan2(demodFxProjQ,demodFxProjI)
+		phaseMarker1 = np.pi / 2 * np.ones(len(phasecheck))
+		phaseMarker2 = - np.pi / 2 * np.ones(len(phasecheck))
+
+		fNameArctan = str(tStamp) + '_arctanplot'
+
+		plt.figure(7)
+		plt.plot(testTime[1:10000], phasecheck[1:10000], label = 'arctan(Q/I)')
+		plt.plot(testTime[1:10000], phaseMarker1[1:10000], label = 'phi = pi/2')
+		plt.plot(testTime[1:10000], phaseMarker2[1:10000], label = 'phi = -pi/2')
+		plt.xlabel('time (s)')
+		plt.ylabel('arctan(Q(t)/I(t))')
+		plt.title(fNameArctan)
+		plt.grid()
+		plt.legend()
+
+		if savePlots is True:
+			path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(fNameArctan) + '.png'
+			print('Arctan of demoluated projection components plot saved to Sim Results folder')
+			plt.savefig(path)
 
 		# show all plotted figures
 		plt.show()

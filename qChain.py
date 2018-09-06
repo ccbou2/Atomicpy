@@ -272,7 +272,7 @@ class SpinSystem(object):
 
         plt.figure(2)
         plt.plot(time, probs)
-        plt.ylim([np.min(probs)*0.95, np.max(probs)*1.05])
+        plt.ylim([np.min(probs)*1.05, np.max(probs)*1.05])
         plt.xlim([time[0], time[-1]])
         plt.grid()
         plt.xlabel("Time (s)")
@@ -287,7 +287,7 @@ class SpinSystem(object):
 
         # plt.show()
 
-    def project_plot(self, time, projections, filename, commitVersion,save=False):
+    def project_plot(self, time, projections, filename, commitVersion, save=False):
         """
         Formatted code for plot (why must plot code always be hideous?)
         """
@@ -297,7 +297,7 @@ class SpinSystem(object):
 
         plt.figure(3)
         plt.plot(time, projections)
-        plt.ylim([np.min(projections)*0.95, np.max(projections)*1.05])
+        plt.ylim([np.min(projections)*1.05, np.max(projections)*1.05])
         plt.xlim([time[0], time[-1]])
         plt.grid()
         plt.xlabel("Time (s)")
