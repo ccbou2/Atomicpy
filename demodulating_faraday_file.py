@@ -163,9 +163,9 @@ def demod_from_array(mod_array, faraday_sampling_rate = 5e6, start_time = 0, end
 	time_axis = np.arange(len(Faraday_clipped))*dt
 
 	# Decimate input data to help filter behave better
-	Faraday_clipped = signal.decimate(Faraday_clipped, 100, n=None, ftype='iir', axis=-1, zero_phase=True)
-	time_axis = signal.decimate(time_axis, 100, n=None, ftype='iir', axis=-1, zero_phase=True)
-	dt = 1/faraday_sampling_rate
+	# Faraday_clipped = signal.decimate(Faraday_clipped, 100, n=None, ftype='iir', axis=-1, zero_phase=True)
+	# time_axis = signal.decimate(time_axis, 100, n=None, ftype='iir', axis=-1, zero_phase=True)
+	# dt = 1/faraday_sampling_rate
 
 	reference = np.sin(2*np.pi*reference_frequency*time_axis + reference_phase_deg*np.pi/180)
 	decimate_factor = 10
@@ -178,8 +178,9 @@ def demod_from_array(mod_array, faraday_sampling_rate = 5e6, start_time = 0, end
 
 	dec_data = signal.decimate(multiplied_waves, decimate_factor, n=None, ftype='iir', axis=-1, zero_phase=True)
 	dec_dec_data = signal.decimate(dec_data, decimate_factor, n=None, ftype='iir', axis=-1, zero_phase=True)
-	dec_time = signal.decimate(time_axis, decimate_factor, n=None, ftype='iir', axis=-1, zero_phase=True)
-	dec_dec_time = signal.decimate(dec_time, decimate_factor, n=None, ftype='iir', axis=-1, zero_phase=True)
+	# dec_time = signal.decimate(time_axis, decimate_factor, n=None, ftype='iir', axis=-1, zero_phase=True)
+	# dec_dec_time = signal.decimate(dec_time, decimate_factor, n=None, ftype='iir', axis=-1, zero_phase=True)
+	demod_time = np.arange(len(dec_dec_data))*dt*decimate_factor*decimate_factor 
 
 	# Feed into  Low pass filter
 	demodulated = LPFilter(dec_dec_data, lowpas_freq, dt*decimate_factor*decimate_factor)
@@ -189,7 +190,7 @@ def demod_from_array(mod_array, faraday_sampling_rate = 5e6, start_time = 0, end
 
 	if plot_demod == True:
 		plt.figure(4, figsize = (10,7.5))
-		plt.plot(dec_dec_time, demodulated, label = label)
+		plt.plot(demod_time, demodulated, label = label)
 		plt.xlabel('Time (s)')
 		plt.ylabel('Demodulated <Fx>')
 		# plt.xlim(time_axis[0], time_axis[-1])
@@ -202,7 +203,7 @@ def demod_from_array(mod_array, faraday_sampling_rate = 5e6, start_time = 0, end
 			plt.savefig(path)
 			
 	fNamePeriodogram = str(time_stamp) + '_demod_periodogram'
-	freq, amp = make_periodogram(demodulated, faraday_sampling_rate*100, fNamePeriodogram, saveFig = save, plot_graph = plot_demod, start_freq = 0, end_freq = 20000, label = label)
+	freq, amp = make_periodogram(demodulated, faraday_sampling_rate/100, fNamePeriodogram, saveFig = save, plot_graph = plot_demod, start_freq = 0, end_freq = 20000, label = label)
 
 	""" decimating data """
 	# decimated_demod = signal.decimate(demodulated, 100, n=None, ftype='iir', axis=-1, zero_phase=True)
