@@ -1,0 +1,7 @@
+biasFreq: 699900.0
+detuningFreq: 0
+evolutionTime: 0.01
+phaseOffset: 0
+rabiFreq: 1000.0
+stepFreq: 100000000.0
+lowPassFreq: 2000.0

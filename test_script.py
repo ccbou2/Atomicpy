@@ -32,7 +32,7 @@ print('Current commit version is ' + str(commitID))
 if __name__ == "__main__":
 
 		# Open desired .yaml parameter file, set by nameParams, and read data to yamlParams
-		nameParams = 'test_v3'
+		nameParams = 'test_v4'
 		fNameParams = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
 			 + nameParams + '_params.yaml'
 		paramStream = open(fNameParams, 'r')
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 																					hamiltonian=ham.hamiltonian_cache, # system Hamiltonian
 																					cache=True,                        # whether to cache calculations (faster)
 																					project=meas1["+"],                # projection operator for measurement
-																					bloch=[True, 1])                # Whether to save pnts for bloch state 
+																					bloch=[True, 100])                # Whether to save pnts for bloch state 
 																																						 # and save interval
 		end = time.time()
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
 		tStamp = time.strftime( "%Y%m%dT%H%M%S")
 
 		# Define whether we want to save plots
-		savePlots = True
+		savePlots = False
 
 		# plot on Bloch sphere, saving timestamped filename if savePlots is true
 		fNameBloch = str(tStamp) + '_blochplot'
@@ -182,20 +182,20 @@ if __name__ == "__main__":
 
 		fNameArctan = str(tStamp) + '_arctanplot'
 
-		plt.figure(7)
-		plt.plot(testTime[1:10000], phasecheck[1:10000], label = 'arctan(Q/I)')
-		plt.plot(testTime[1:10000], phaseMarker1[1:10000], label = 'phi = pi/2')
-		plt.plot(testTime[1:10000], phaseMarker2[1:10000], label = 'phi = -pi/2')
-		plt.xlabel('time (s)')
-		plt.ylabel('arctan(Q(t)/I(t))')
-		plt.title(fNameArctan)
-		plt.grid()
-		plt.legend()
+		# plt.figure(7)
+		# plt.plot(tdomain[1:1000], phasecheck[1:1000], label = 'arctan(Q/I)')
+		# plt.plot(tdomain[1:1000], phaseMarker1[1:1000], label = 'phi = pi/2')
+		# plt.plot(tdomain[1:1000], phaseMarker2[1:1000], label = 'phi = -pi/2')
+		# plt.xlabel('time (s)')
+		# plt.ylabel('arctan(Q(t)/I(t))')
+		# plt.title(fNameArctan)
+		# plt.grid()
+		# plt.legend()
 
-		if savePlots is True:
-			path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(fNameArctan) + '.png'
-			print('Arctan of demoluated projection components plot saved to Sim Results folder')
-			plt.savefig(path)
+		# if savePlots is True:
+		# 	path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(fNameArctan) + '.png'
+		# 	print('Arctan of demodulated projection components plot saved to Sim Results folder')
+		# 	plt.savefig(path)
 
 		# show all plotted figures
 		plt.show()
