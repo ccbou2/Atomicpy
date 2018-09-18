@@ -124,7 +124,7 @@ def demod_from_h5(h5file_name, h5data_path, faraday_sampling_rate = 5e6, start_t
 		plt.figure(figsize = (10,7.5))
 		plt.plot(time_axis, demodulated)
 		plt.xlabel('Time')
-		plt.title('Demoulated Faraday')
+		plt.title('Demodulated Faraday')
 		plt.show()
 
 	""" decimating data """
@@ -190,6 +190,7 @@ def demod_from_array(mod_array, faraday_sampling_rate = 5e6, start_time = 0, end
 
 	if plot_demod == True:
 		plt.figure(4, figsize = (10,7.5))
+		# plt.plot(time_axis, multiplied_waves, label = label)
 		plt.plot(demod_time, demodulated, label = label)
 		plt.xlabel('Time (s)')
 		plt.ylabel('Demodulated <Fx>')

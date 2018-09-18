@@ -32,7 +32,7 @@ print('Current commit version is ' + str(commitID))
 if __name__ == "__main__":
 
 		# Open desired .yaml parameter file, set by nameParams, and read data to yamlParams
-		nameParams = 'test_v4'
+		nameParams = 'test_v5'
 		fNameParams = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
 			 + nameParams + '_params.yaml'
 		paramStream = open(fNameParams, 'r')
@@ -182,15 +182,15 @@ if __name__ == "__main__":
 
 		fNameArctan = str(tStamp) + '_arctanplot'
 
-		# plt.figure(7)
-		# plt.plot(tdomain[1:1000], phasecheck[1:1000], label = 'arctan(Q/I)')
-		# plt.plot(tdomain[1:1000], phaseMarker1[1:1000], label = 'phi = pi/2')
-		# plt.plot(tdomain[1:1000], phaseMarker2[1:1000], label = 'phi = -pi/2')
-		# plt.xlabel('time (s)')
-		# plt.ylabel('arctan(Q(t)/I(t))')
-		# plt.title(fNameArctan)
-		# plt.grid()
-		# plt.legend()
+		plt.figure(7)
+		plt.plot(tdomain[1:1000], phasecheck[1:1000], label = 'arctan(Q/I)')
+		plt.plot(tdomain[1:1000], phaseMarker1[1:1000], label = 'phi = pi/2')
+		plt.plot(tdomain[1:1000], phaseMarker2[1:1000], label = 'phi = -pi/2')
+		plt.xlabel('time (s)')
+		plt.ylabel('arctan(Q(t)/I(t))')
+		plt.title(fNameArctan)
+		plt.grid()
+		plt.legend()
 
 		# if savePlots is True:
 		# 	path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(fNameArctan) + '.png'
