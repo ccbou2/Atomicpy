@@ -6,12 +6,21 @@ from utility import *
 from demodulating_faraday_file import *
 from shutil import copyfile
 import numpy as np 
+import scipy.signal as sp
 import time
 import matplotlib.pyplot as plt
 import git
 import yaml
 
+
 # use .yaml filetype for parameters, python package needed.
+
+# Define whether we want to save plots
+savePlots = True
+
+#######################################################################
+# Repository checks
+#######################################################################
 
 # Check git repository status
 repo = git.Repo(search_parent_directories=True)
@@ -30,6 +39,10 @@ print('Current commit version is ' + str(commitID))
 
 # Run main script
 if __name__ == "__main__":
+
+		#######################################################################
+		# Import parameters
+		#######################################################################
 
 		# Open desired .yaml parameter file, set by nameParams, and read data to yamlParams
 		nameParams = 'test_v5'
@@ -76,6 +89,10 @@ if __name__ == "__main__":
 		# phi = 0;
 		# f = f0 + det;
 
+		#######################################################################
+		# B field definitions & simulation code
+		#######################################################################
+
 		# define B fields for lab frame
 		def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi * np.pi/180)
 		def By(t): return 0 * (t/t)
@@ -121,8 +138,9 @@ if __name__ == "__main__":
 		# Save timestamp for current sim
 		tStamp = time.strftime( "%Y%m%dT%H%M%S")
 
-		# Define whether we want to save plots
-		savePlots = False
+		#######################################################################
+		# Initial plotting via imported functions
+		#######################################################################
 
 		# plot on Bloch sphere, saving timestamped filename if savePlots is true
 		fNameBloch = str(tStamp) + '_blochplot'
@@ -150,16 +168,13 @@ if __name__ == "__main__":
 		# dressField = np.cos(2 * np.pi * f * tdomain)
 		# plt.plot(tdomain[1:2000],dressField[1:2000])
 
-		# test function
-		testTime = np.arange(1e-44,eperiod,1/fs)
-		testSignal = np.sin(2*np.pi*f0*testTime - phi * np.pi/180)
+		# # test function
+		# testTime = np.arange(1e-44,eperiod,1/fs)
+		# testSignal = np.sin(2*np.pi*f0*testTime - phi * np.pi/180)
 
-		# compute & plot fft of signal to try figure out why we have this phase error
-		# ftProj = np.fft.fft(fxProj); # Making a fourier transform
-		# absftProj = np.abs(ftProj);
-		# ftFreqs = np.fft.fftfreq(len(testTime), 1/fs); 
-		# plt.figure(6)
-		# plt.plot(ftFreqs, ftProj)
+		#######################################################################
+		# Demodulation of projection data via James' code
+		#######################################################################
 
 		# next, want to use James' code to try demodulate <Fx>
 		# faraday_sampling_rate = fs
@@ -175,27 +190,94 @@ if __name__ == "__main__":
 			plt.legend()
 			plt.grid()
 
+		#######################################################################
+		# Phase error checking & plotting
+		#######################################################################
+
 		# Check arctangent of the two components Q and I of the demodulated <Fx> projection
 		phasecheck = np.arctan2(demodFxProjQ,demodFxProjI)
 		phaseMarker1 = np.pi / 2 * np.ones(len(phasecheck))
 		phaseMarker2 = - np.pi / 2 * np.ones(len(phasecheck))
 
+		tDemod = np.arange(len(demodFxProjQ)) * (100/fs)
+
 		fNameArctan = str(tStamp) + '_arctanplot'
 
 		plt.figure(7)
-		plt.plot(tdomain[1:1000], phasecheck[1:1000], label = 'arctan(Q/I)')
-		plt.plot(tdomain[1:1000], phaseMarker1[1:1000], label = 'phi = pi/2')
-		plt.plot(tdomain[1:1000], phaseMarker2[1:1000], label = 'phi = -pi/2')
+		# plt.plot(tdomain[1:1000], phasecheck[1:1000], label = 'arctan(Q/I)')
+		# plt.plot(tdomain[1:1000], phaseMarker1[1:1000], label = 'phi = pi/2')
+		# plt.plot(tdomain[1:1000], phaseMarker2[1:1000], label = 'phi = -pi/2')
+		plt.plot(tDemod, phasecheck, label = 'arctan(Q/I)')
+		plt.plot(tDemod, phaseMarker1, label = 'phi = pi/2')
+		plt.plot(tDemod, phaseMarker2, label = 'phi = -pi/2')
 		plt.xlabel('time (s)')
 		plt.ylabel('arctan(Q(t)/I(t))')
 		plt.title(fNameArctan)
 		plt.grid()
 		plt.legend()
 
-		# if savePlots is True:
-		# 	path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(fNameArctan) + '.png'
-		# 	print('Arctan of demodulated projection components plot saved to Sim Results folder')
-		# 	plt.savefig(path)
+		# Save arctan plot
+		if savePlots is True:
+			path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(fNameArctan) + '.png'
+			print('Arctan of demodulated projection components plot saved to Sim Results folder')
+			plt.savefig(path)
+
+		# Now, find extrema positions of demod data using scipy.signal functions
+		demodMinInd = np.asarray(sp.argrelmax(demodFxProjQ))
+		demodMaxInd = np.asarray(sp.argrelmin(demodFxProjQ))
+
+		# Using indices, find difference between arctan of Q and I components
+		# and expected +- pi/2 for the extrema positions
+		minimaPhase = np.zeros(np.shape(demodMinInd)[1])
+		maximaPhase = np.zeros(np.shape(demodMaxInd)[1])
+
+		for i in range(0, np.shape(demodMinInd)[1]):
+			index = demodMinInd[0][i]
+			minimaPhase[i] = (np.pi/2) - phasecheck[index]
+
+		for i in range(0, np.shape(demodMaxInd)[1]):
+			index = demodMaxInd[0][i]
+			maximaPhase[i] = (-np.pi/2) - phasecheck[index]
+
+		# Remove first and last maxima where LP filter is spinning up/winding down figuratively
+		maximaPhase = maximaPhase[1:-1]
+
+		# Compute average of minima and maxima seperately and standard deviation
+		phaseDiffMin = np.format_float_scientific(np.mean(minimaPhase), precision=8)
+		u_phaseDiffMin = np.format_float_scientific(np.std(minimaPhase), precision=2)
+
+		phaseDiffMax = np.format_float_scientific(np.mean(maximaPhase), precision=8)
+		u_phaseDiffMax = np.format_float_scientific(np.std(maximaPhase), precision=2)
+
+		# Print results of average w/ standard deviation for uncertainty
+		print('phaseDiff for minima is ' + str(phaseDiffMin) + '(' + str(u_phaseDiffMin) + ')')
+		print('phaseDiff for maxima is ' + str(phaseDiffMax) + '(' + str(u_phaseDiffMax) + ')')
+
+		# Plot results of difference for extrema
+		fNamePhase = str(tStamp) + '_phaseErrorPlot'
+		maxText = 'maximaAv:' + str(phaseDiffMax) + '(' + str(u_phaseDiffMax) + ')'
+		minText = 'minimaAv:' + str(phaseDiffMin) + '(' + str(u_phaseDiffMin) + ')'
+
+		plt.figure(8)
+		plt.plot(minimaPhase)
+		plt.plot(maximaPhase)
+		plt.ylabel('arctan(Q/I)')
+		plt.xlabel('Extrema index')
+		plt.title(fNamePhase)
+		plt.annotate('pi/2 - abs(arctan) averages:', xy=(0.72,0.55), xycoords = 'axes fraction', fontsize=12)
+		plt.annotate(maxText, xy=(0.72,0.51), xycoords = 'axes fraction', fontsize=12)
+		plt.annotate(minText, xy=(0.72,0.48), xycoords = 'axes fraction', fontsize=12)
+		plt.legend(['Minima','Maxima'])
+
+		# Save phaseError plot
+		if savePlots is True:
+			path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(fNamePhase) + '.png'
+			print('Phase error of demodulated projection components plot saved to Sim Results folder')
+			plt.savefig(path)
+
+		#######################################################################
+		# Show figs & export parameters
+		#######################################################################
 
 		# show all plotted figures
 		plt.show()
