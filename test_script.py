@@ -45,7 +45,7 @@ if __name__ == "__main__":
 		#######################################################################
 
 		# Open desired .yaml parameter file, set by nameParams, and read data to yamlParams
-		nameParams = 'test_v5'
+		nameParams = 'test_v3'
 		fNameParams = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
 			 + nameParams + '_params.yaml'
 		paramStream = open(fNameParams, 'r')
@@ -94,7 +94,8 @@ if __name__ == "__main__":
 		#######################################################################
 
 		# define B fields for lab frame
-		def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi * np.pi/180)
+		# def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi * np.pi/180)
+		def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi)	# For phi in rads
 		def By(t): return 0 * (t/t)
 		def Bz(t): return (det - f) * (t/t)
 
@@ -178,11 +179,16 @@ if __name__ == "__main__":
 
 		# next, want to use James' code to try demodulate <Fx>
 		# faraday_sampling_rate = fs
+
+		# phiShift = 2.55700544e-02 * 180/np.pi;
+		# phiShift = 1.84302201e-02 * 180/np.pi;
+		phiShift = (2.55700544e-02 + 1.84302201e-02)/2 * (180/np.pi);
+
 		if runDemod is True:
 			demodFxProjQ = demod_from_array(fxProj, reference_frequency = f, faraday_sampling_rate = fs, \
-				lowpas_freq = fPass, plot_demod = True, save = savePlots, time_stamp = str(tStamp), label = 'Q(t)')
+				reference_phase_deg = phiShift, lowpas_freq = fPass, plot_demod = True, save = savePlots, time_stamp = str(tStamp), label = 'Q(t)')
 			demodFxProjI = demod_from_array(fxProj, reference_frequency = f, faraday_sampling_rate = fs, \
-				reference_phase_deg = 90, lowpas_freq = fPass, plot_demod = True, save = savePlots, time_stamp = str(tStamp), label = 'I(t)')
+				reference_phase_deg = (90 + phiShift), lowpas_freq = fPass, plot_demod = True, save = savePlots, time_stamp = str(tStamp), label = 'I(t)')
 			plt.figure(4)
 			plt.legend()
 			plt.grid()
@@ -223,24 +229,46 @@ if __name__ == "__main__":
 			plt.savefig(path)
 
 		# Now, find extrema positions of demod data using scipy.signal functions
-		demodMinInd = np.asarray(sp.argrelmax(demodFxProjQ))
-		demodMaxInd = np.asarray(sp.argrelmin(demodFxProjQ))
+		demodMaxInd = np.asarray(sp.argrelmax(demodFxProjQ))
+		demodMinInd = np.asarray(sp.argrelmin(demodFxProjQ))
 
 		# Using indices, find difference between arctan of Q and I components
 		# and expected +- pi/2 for the extrema positions
 		minimaPhase = np.zeros(np.shape(demodMinInd)[1])
 		maximaPhase = np.zeros(np.shape(demodMaxInd)[1])
+		Qmaxima = np.zeros(np.shape(demodMaxInd)[1])
+		Qminima = np.zeros(np.shape(demodMinInd)[1])
+		Imaxima = np.zeros(np.shape(demodMaxInd)[1])
+		Iminima = np.zeros(np.shape(demodMinInd)[1])
 
 		for i in range(0, np.shape(demodMinInd)[1]):
 			index = demodMinInd[0][i]
-			minimaPhase[i] = (np.pi/2) - phasecheck[index]
+			minimaPhase[i] = (-np.pi/2) - phasecheck[index]
+			Qminima[i] = demodFxProjQ[index]
+			Iminima[i] = demodFxProjI[index]
 
 		for i in range(0, np.shape(demodMaxInd)[1]):
 			index = demodMaxInd[0][i]
-			maximaPhase[i] = (-np.pi/2) - phasecheck[index]
+			maximaPhase[i] = (np.pi/2) - phasecheck[index]
+			Qmaxima[i] = demodFxProjQ[index]
+			Imaxima[i] = demodFxProjI[index]
 
 		# Remove first and last maxima where LP filter is spinning up/winding down figuratively
-		maximaPhase = maximaPhase[1:-1]
+		minimaPhase = minimaPhase[1:-1]
+		# # Need to remove extra minima that pops up as LP filter spins down for f_Rabi = 1kHz
+		# minimaPhase = minimaPhase[0:-1]
+
+		# ERROR CHECKING: Find and print amplitude of Q and I components
+		QmaxAv = np.mean(Qmaxima)
+		QminAv = np.mean(Qminima)
+		Qamp = (QmaxAv - QminAv) / 2
+
+		ImaxAv = np.mean(Imaxima)
+		IminAv = np.mean(Iminima)
+		Iamp = (ImaxAv - IminAv) / 2
+
+		print('Amplitude of Q(t) is ' + np.format_float_scientific(Qamp, precision = 6))
+		print('Amplitude of I(t) is ' + np.format_float_scientific(Iamp, precision = 6))
 
 		# Compute average of minima and maxima seperately and standard deviation
 		phaseDiffMin = np.format_float_scientific(np.mean(minimaPhase), precision=8)
