@@ -47,7 +47,7 @@ if __name__ == "__main__":
 		#######################################################################
 
 		# Open desired .yaml parameter file, set by nameParams, and read data to yamlParams
-		nameParams = 'test_v3_shift'
+		nameParams = 'test_v4_shift'
 		fNameParams = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
 			 + nameParams + '_params.yaml'
 		paramStream = open(fNameParams, 'r')
@@ -266,6 +266,7 @@ if __name__ == "__main__":
 
 		# Remove first and last maxima where LP filter is spinning up/winding down figuratively
 		minimaPhase = minimaPhase[1:-1]
+		maximaPhase = maximaPhase[:-1]
 		# # Need to remove extra minima that pops up as LP filter spins down for f_Rabi = 1kHz
 		# minimaPhase = minimaPhase[0:-1]
 
@@ -353,8 +354,9 @@ if __name__ == "__main__":
 			#######################################################################
 			
 			# Cut initial and final parts of LP filter output to remove dodgy section for improved fit
-			tDemod = tDemod[75:-75];
-			demodFxProjI = demodFxProjI[75:-75];
+			cutIndex = int(75 * 10000/rabi)
+			tDemod = tDemod[cutIndex:-cutIndex];
+			demodFxProjI = demodFxProjI[cutIndex:-cutIndex];
 
 			# Perform fit
 			sineFit_out = fit_sine(tDemod, demodFxProjI)
