@@ -1,0 +1,133 @@
+A: !!python/object/new:lmfit.parameter.Parameter
+  state: !!python/tuple
+  - amplitude
+  - !!python/object/apply:numpy.core.multiarray.scalar
+    - &id001 !!python/object/apply:numpy.dtype
+      args:
+      - f8
+      - 0
+      - 1
+      state: !!python/tuple
+      - 3
+      - <
+      - null
+      - null
+      - null
+      - -1
+      - -1
+      - 0
+    - !!binary |
+      TaxUC4CXbD8=
+  - true
+  - null
+  - -.inf
+  - .inf
+  - null
+  - !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      Z1mpLlIknj4=
+  - frequency: !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      MWTrPRmBoD8=
+    offset: !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      cDSLCF4Rqz8=
+    phaseShift: !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      Zm8+yKiUnT8=
+  - 0.01
+  - null
+c: !!python/object/new:lmfit.parameter.Parameter
+  state: !!python/tuple
+  - offset
+  - !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      t29ZB+CJbD8=
+  - true
+  - null
+  - -.inf
+  - .inf
+  - null
+  - !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      m625uqFNlT4=
+  - amplitude: !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      sjOLCF4Rqz8=
+    frequency: !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      OqUAvsFRWb8=
+    phaseShift: !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      VkSqvNdfYb8=
+  - 0.005
+  - null
+f: !!python/object/new:lmfit.parameter.Parameter
+  state: !!python/tuple
+  - frequency
+  - !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      O83ajKaHw0A=
+  - true
+  - null
+  - -.inf
+  - .inf
+  - null
+  - !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      qDFlArRRtT8=
+  - amplitude: !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      9V7rPRmBoD8=
+    offset: !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      rkoEvsFRWb8=
+    phaseShift: !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      YWJqPqi27D8=
+  - 10000.0
+  - null
+phi: !!python/object/new:lmfit.parameter.Parameter
+  state: !!python/tuple
+  - phaseShift
+  - !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      qu3evMkY+T8=
+  - true
+  - null
+  - -.inf
+  - .inf
+  - null
+  - !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      oqrd0vgRMz8=
+  - amplitude: !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      kGk+yKiUnT8=
+    frequency: !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      YWJqPqi27D8=
+    offset: !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      ob+svNdfYb8=
+  - 0
+  - null

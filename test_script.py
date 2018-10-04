@@ -11,11 +11,13 @@ import time
 import matplotlib.pyplot as plt
 import git
 import yaml
+from lmfit import minimize, Parameters
 
 
 # use .yaml filetype for parameters, python package needed.
 
 # Define whether we want to save plots
+# savePlots = True
 savePlots = True
 
 #######################################################################
@@ -41,7 +43,7 @@ print('Current commit version is ' + str(commitID))
 if __name__ == "__main__":
 
 		#######################################################################
-		# Import parameters
+		# Import simulation parameters
 		#######################################################################
 
 		# Open desired .yaml parameter file, set by nameParams, and read data to yamlParams
@@ -52,7 +54,7 @@ if __name__ == "__main__":
 		yamlParams = yaml.load(paramStream)
 		paramStream.close()
 
-		# Set frequencies from yamlParams
+		# Set simulation parameters from yamlParams
 		# sampling frequncy of unitary (Hz)
 		fs = yamlParams['stepFreq']
 		# time to evolve state for (seconds) 
@@ -74,8 +76,17 @@ if __name__ == "__main__":
 			runDemod = True
 		else:
 			runDemod = False
+		# phase shift computed from previous phase error correcting run
+		if 'refPhiShift' in yamlParams:
+			phiShift = yamlParams['refPhiShift']
+			fitIremnant = True
+		else:
+			phiShift = 0
+			fitIremnant = False
 
+		#######################################################################
 		# Legacy frequency parameter definitions, left for reference/use if yaml imports break
+		#######################################################################
 
 		# # sampling frequncy of unitary (Hz)
 		# fs = 1e8
@@ -182,7 +193,7 @@ if __name__ == "__main__":
 
 		# phiShift = 2.55700544e-02 * 180/np.pi;
 		# phiShift = 1.84302201e-02 * 180/np.pi;
-		phiShift = (2.55700544e-02 + 1.84302201e-02)/2 * (180/np.pi);
+		# phiShift = (2.55700544e-02 + 1.84302201e-02)/2 * (180/np.pi);
 
 		if runDemod is True:
 			demodFxProjQ = demod_from_array(fxProj, reference_frequency = f, faraday_sampling_rate = fs, \
@@ -297,11 +308,105 @@ if __name__ == "__main__":
 		plt.annotate(minText, xy=(0.72,0.48), xycoords = 'axes fraction', fontsize=12)
 		plt.legend(['Minima','Maxima'])
 
+		# Print average of the minima and maxima phases
+		extremaAv = (np.mean(minimaPhase) + np.mean(maximaPhase))/2 * (180/np.pi);
+		print('reference phi shift required : ' + str(extremaAv))
+
 		# Save phaseError plot
 		if savePlots is True:
 			path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(fNamePhase) + '.png'
 			print('Phase error of demodulated projection components plot saved to Sim Results folder')
 			plt.savefig(path)
+
+		if fitIremnant is True:
+
+			#######################################################################
+			# Setting up lmfit for I(t) out of phase remnant
+			#######################################################################
+
+			# Set up fitting functions:
+			def residual(params, t, data):
+				f = params['frequency']
+				phi = params['phaseShift']
+				A = params['amplitude']
+				c = params['offset']
+				
+				model = A * np.sin(2 * np.pi * f * t - phi) + c
+				return data - model
+
+			def fit_sine(t, data):
+				params = Parameters()
+				params.add('frequency', value = rabi)
+				params.add('phaseShift', value = 0)
+				params.add('amplitude', value = 0.01)
+				params.add('offset', value = 0.005)
+
+				out = minimize(residual, params, args = (t, data))
+				return out
+
+			def model_function(t, f, phi, A, c):
+				y = A * np.sin(2 * np.pi * f * t - phi) + c
+				return y
+
+			#######################################################################
+			# Perform fit of I(t) out of phase remnant
+			#######################################################################
+			
+			# Cut initial and final parts of LP filter output to remove dodgy section for improved fit
+			tDemod = tDemod[75:-75];
+			demodFxProjI = demodFxProjI[75:-75];
+
+			# Perform fit
+			sineFit_out = fit_sine(tDemod, demodFxProjI)
+			fitData = model_function(tDemod, sineFit_out.params['frequency'], sineFit_out.params['phaseShift'], \
+				sineFit_out.params['amplitude'], sineFit_out.params['offset'])
+
+			# Convert parameters into printable format
+			fitAmp = str(sineFit_out.params['amplitude']);
+			fitAmp = fitAmp[fitAmp.index('=')+1:]
+			fitAmp = fitAmp[:fitAmp.index(',')]
+			print('Amplitude = ' + fitAmp)
+
+			fitFreq = str(sineFit_out.params['frequency']);
+			fitFreq = fitFreq[fitFreq.index('=')+1:]
+			fitFreq = fitFreq[:fitFreq.index(',')]
+			print('Frequency = ' + fitFreq)
+
+			fitPhi = str(sineFit_out.params['phaseShift']);
+			fitPhi = fitPhi[fitPhi.index('=')+1:]
+			fitPhi = fitPhi[:fitPhi.index(',')]
+			print('Phase = ' + fitPhi)
+
+			fitOff = str(sineFit_out.params['offset']);
+			fitOff = fitOff[fitOff.index('=')+1:]
+			fitOff = fitOff[:fitOff.index(',')]
+			print('Offset = ' + fitOff)
+
+			# Plot the fit
+			plt.figure(9)
+			plt.plot(tDemod, demodFxProjI, label = 'I(t) data')
+			plt.plot(tDemod, fitData, linestyle = '--', label = 'fit')
+			plt.xlabel('time (s)')
+			plt.ylabel('I(t) component')
+			plt.title('I(t) Out of Phase Remnant')
+			# plt.annotate('fit params:', xy=(0.72,0.55), xycoords = 'axes fraction', fontsize=12)
+			# plt.annotate('A = ' + fitAmp, xy=(0.72,0.51), xycoords = 'axes fraction', fontsize=12)
+			# plt.annotate('f = ' + fitFreq, xy=(0.72,0.48), xycoords = 'axes fraction', fontsize=12)
+			plt.legend()
+			plt.grid()
+
+			# Save fit results if plots are being saved too
+			if savePlots is True:
+				fNameFitParams = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
+					 + str(tStamp) + '_fitVals.yaml'
+				stream = open(fNameFitParams, 'w+')
+				yaml.dump({'A': fitAmp,
+					'f': fitFreq,
+					'phi': fitPhi,
+					'c': fitOff},
+					stream,default_flow_style=False)
+				print('Out of phase component fit parameters exported to .yaml file in ParameterFiles subfolder')
+
 
 		#######################################################################
 		# Show figs & export parameters
@@ -317,5 +422,4 @@ if __name__ == "__main__":
 			fNameYaml = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
 				 + str(tStamp) + '_params.yaml'
 			copyfile(fNameParams, fNameYaml)
-
 			print('Parameters exported to .yaml file in ParameterFiles subfolder')

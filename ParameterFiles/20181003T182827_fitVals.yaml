@@ -1,0 +1,4 @@
+A: <Parameter 'amplitude', value=0.00349020966190986 +/- 4.49e-07, bounds=[-inf:inf]>
+c: <Parameter 'offset', value=0.003483712726660894 +/- 3.17e-07, bounds=[-inf:inf]>
+f: <Parameter 'frequency', value=9999.30117354413 +/- 0.0833, bounds=[-inf:inf]>
+phi: <Parameter 'phaseShift', value=1.5685517671362086 +/- 0.000291, bounds=[-inf:inf]>
