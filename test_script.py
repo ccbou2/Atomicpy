@@ -47,7 +47,7 @@ if __name__ == "__main__":
 		#######################################################################
 
 		# Open desired .yaml parameter file, set by nameParams, and read data to yamlParams
-		nameParams = 'test_v3'
+		nameParams = 'test_v3_shift'
 		fNameParams = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
 			 + nameParams + '_params.yaml'
 		paramStream = open(fNameParams, 'r')
@@ -383,12 +383,13 @@ if __name__ == "__main__":
 			print('Offset = ' + fitOff)
 
 			# Plot the fit
+			fNameRemnant = str(tStamp) + '_Iremnant'
 			plt.figure(9)
 			plt.plot(tDemod, demodFxProjI, label = 'I(t) data')
 			plt.plot(tDemod, fitData, linestyle = '--', label = 'fit')
 			plt.xlabel('time (s)')
 			plt.ylabel('I(t) component')
-			plt.title('I(t) Out of Phase Remnant')
+			plt.title(fNameRemnant)
 			# plt.annotate('fit params:', xy=(0.72,0.55), xycoords = 'axes fraction', fontsize=12)
 			# plt.annotate('A = ' + fitAmp, xy=(0.72,0.51), xycoords = 'axes fraction', fontsize=12)
 			# plt.annotate('f = ' + fitFreq, xy=(0.72,0.48), xycoords = 'axes fraction', fontsize=12)
@@ -397,6 +398,10 @@ if __name__ == "__main__":
 
 			# Save fit results if plots are being saved too
 			if savePlots is True:
+				path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(fNameRemnant) + '.png'
+				print('plot of I(t) remnant fit saved to Sim Results folder')
+				plt.savefig(path)
+
 				fNameFitParams = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
 					 + str(tStamp) + '_fitVals.yaml'
 				stream = open(fNameFitParams, 'w+')
