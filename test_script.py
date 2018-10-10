@@ -47,7 +47,7 @@ if __name__ == "__main__":
 		#######################################################################
 
 		# Open desired .yaml parameter file, set by nameParams, and read data to yamlParams
-		nameParams = 'test_v4_shift'
+		nameParams = 'test_v5_shift'
 		fNameParams = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
 			 + nameParams + '_params.yaml'
 		paramStream = open(fNameParams, 'r')
