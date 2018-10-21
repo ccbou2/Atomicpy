@@ -243,7 +243,7 @@ class SpinSystem(object):
             assert len(points) == 3, "System dimension must be spin 1/2 for Bloch sphere plot"
         
         # create instance of 3d plot
-        bloch = Bloch(fig=1)
+        bloch = Bloch(fig=1, figsize=[9,9], view=[190,10])
         # add state
         bloch.add_points(points)
         bloch.render()
@@ -251,7 +251,34 @@ class SpinSystem(object):
         if save is True:
             print('Bloch plot saved to Sim Results folder')
             path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(filename) + '.png'
-            bloch.fig.savefig(path)
+            bloch.fig.savefig(path, dpi=800, transparent=True)
+
+    def bloch_plot2(self, filename, points=None, save=False):
+        """
+        Plot the current state on the Bloch sphere using
+        qutip. 
+        """
+        if points is None:
+            # convert current state into density operator
+            rho = np.outer(self.state.H, self.state)
+            # get Bloch vector representation
+            points = self.get_bloch_vec(rho)
+            # Can only plot systems of dimension 2 at this time
+            assert len(points) == 3, "System dimension must be spin 1/2 for Bloch sphere plot"
+        
+        # create instance of 3d plot
+        bloch = Bloch(fig=1, figsize=[9,9], view=[190,10])
+        # add state
+        bloch.add_points(points)
+        # add field vector
+        # bloch.add_vectors([1,0,0.15])
+        bloch.add_vectors([1,0,0])
+        bloch.render()
+
+        if save is True:
+            print('Bloch plot saved to Sim Results folder')
+            path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(filename) + '.png'
+            bloch.fig.savefig(path, dpi=800, transparent=True)
 
 
     def get_bloch_vec(self, rho):

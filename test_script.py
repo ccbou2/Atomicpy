@@ -17,8 +17,7 @@ from lmfit import minimize, Parameters
 # use .yaml filetype for parameters, python package needed.
 
 # Define whether we want to save plots
-# savePlots = True
-savePlots = True
+savePlots = False
 
 #######################################################################
 # Repository checks
@@ -47,7 +46,7 @@ if __name__ == "__main__":
 		#######################################################################
 
 		# Open desired .yaml parameter file, set by nameParams, and read data to yamlParams
-		nameParams = 'test_v5_shift'
+		nameParams = 'test_v3_shift'
 		fNameParams = 'C:/Users/Boundsy/Documents/GitHub/Atomicpy/ParameterFiles/' \
 			 + nameParams + '_params.yaml'
 		paramStream = open(fNameParams, 'r')
@@ -84,6 +83,15 @@ if __name__ == "__main__":
 			phiShift = 0
 			fitIremnant = False
 
+		# Small signal params;
+		rabi_2 = 1
+		f0_2 = 10000
+		det_2 = 0
+		f_2 = f0_2 + det_2
+		phi_2 = 0
+		eperiod = 0.1
+		fitIremnant = False
+
 		#######################################################################
 		# Legacy frequency parameter definitions, left for reference/use if yaml imports break
 		#######################################################################
@@ -108,7 +116,8 @@ if __name__ == "__main__":
 		# def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi * np.pi/180)
 		def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi)	# For phi in rads
 		def By(t): return 0 * (t/t)
-		def Bz(t): return (det - f) * (t/t)
+		def Bz(t): return (det - f) * (t/t) + 2 * rabi_2 * np.cos(2 * np.pi * f_2 * t - phi_2)
+		# def Bz(t): return (det - f) * (t/t)
 
 		# define B fields in first rotating frame
 		# def Bx(t): return rabi * np.cos(phi * (t/t))
