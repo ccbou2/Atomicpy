@@ -83,14 +83,14 @@ if __name__ == "__main__":
 			phiShift = 0
 			fitIremnant = False
 
-		# Small signal params;
-		rabi_2 = 1
-		f0_2 = 10000
-		det_2 = 0
-		f_2 = f0_2 + det_2
-		phi_2 = 0
-		eperiod = 0.1
-		fitIremnant = False
+		# # Small signal params;
+		# rabi_2 = 1
+		# f0_2 = 10000
+		# det_2 = 0
+		# f_2 = f0_2 + det_2
+		# phi_2 = 0
+		# eperiod = 0.1
+		# fitIremnant = False
 
 		#######################################################################
 		# Legacy frequency parameter definitions, left for reference/use if yaml imports break

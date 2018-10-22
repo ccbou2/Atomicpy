@@ -34,6 +34,15 @@ if __name__ == "__main__":
 		phi = 0;
 		f = f0 + det;
 
+		# Small signal params;
+		rabi_2 = 1;
+		f0_2 = 10000;
+		det_2 = detFreq;
+		f_2 = f0_2 + det_2;
+		phi_2 = 0;
+		eperiod = 0.1;
+		fitIremnant = False;
+
 		#######################################################################
 		# B field definitions & simulation code
 		#######################################################################
@@ -90,7 +99,7 @@ if __name__ == "__main__":
 
 		# plot on Bloch sphere, saving timestamped filename if savePlots is true
 		fNameBloch = str(tStamp) + '_blochplot'
-		atom.bloch_plot(fNameBloch, pnts, savePlots)  
+		atom.bloch_plot2(fNameBloch, pnts, savePlots)  
 
 		# show all plotted figures
 		plt.show()
