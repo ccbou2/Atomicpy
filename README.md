@@ -1,2 +1,2 @@
 # Atomicpy
-Simple simulation system for two level atomic systems.
+Simulation code for exploration of beyond rotating wave approximation effects in a two state RF-dressed system.
