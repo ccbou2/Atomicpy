@@ -51,7 +51,7 @@ def smallSim(detFreq=0, save=False, output=False):
 		# def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi * np.pi/180)
 		def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi)	# For phi in rads
 		def By(t): return 0 * (t/t)
-		def Bz(t): return (det - f) + 2 * rabi_2 * np.cos(2 * np.pi * f_2 * t - phi_2)
+		def Bz(t): return (det - f) + 2 * rabi_2 * np.sin(2 * np.pi * f_2 * t - phi_2)
 
 		# # define B fields in first rotating frame
 		# def Bx(t): return rabi * np.cos(phi * (t/t))
@@ -132,7 +132,7 @@ def smallSim(detFreq=0, save=False, output=False):
 				f_2 = params['frequency2']
 				phi_2 = params['phase2']
 				
-				model = A * np.sin(2 * np.pi * f * t - phi) + B * np.cos(2 * np.pi * f_2 * t - phi_2) + c
+				model = A * np.sin(2 * np.pi * f * t - phi) + B * np.sin(2 * np.pi * f_2 * t - phi_2) + c
 				return data - model
 
 			def fit_sine(t, data):
@@ -149,7 +149,7 @@ def smallSim(detFreq=0, save=False, output=False):
 				return out
 
 			def model_function(t, f, phi, A, c, B, f_2, phi_2):
-				y = A * np.sin(2 * np.pi * f * t - phi) + B * np.cos(2 * np.pi * f_2 * t - phi_2) + c
+				y = A * np.sin(2 * np.pi * f * t - phi) + B * np.sin(2 * np.pi * f_2 * t - phi_2) + c
 				return y
 
 			#######################################################################
@@ -167,41 +167,41 @@ def smallSim(detFreq=0, save=False, output=False):
 				sineFit_out.params['amplitude'], sineFit_out.params['offset'], sineFit_out.params['amp2'], \
 				sineFit_out.params['frequency2'], sineFit_out.params['phase2'])
 
-			# Convert parameters into printable format
-			fitAmp = str(sineFit_out.params['amplitude']);
-			fitAmp = fitAmp[fitAmp.index('=')+1:]
-			fitAmp = fitAmp[:fitAmp.index(',')]
-			print('Amplitude = ' + fitAmp)
+			# # Convert parameters into printable format
+			# fitAmp = str(sineFit_out.params['amplitude']);
+			# fitAmp = fitAmp[fitAmp.index('=')+1:]
+			# fitAmp = fitAmp[:fitAmp.index(',')]
+			# print('Amplitude = ' + fitAmp)
 
-			fitFreq = str(sineFit_out.params['frequency']);
-			fitFreq = fitFreq[fitFreq.index('=')+1:]
-			fitFreq = fitFreq[:fitFreq.index(',')]
-			print('Frequency = ' + fitFreq)
+			# fitFreq = str(sineFit_out.params['frequency']);
+			# fitFreq = fitFreq[fitFreq.index('=')+1:]
+			# fitFreq = fitFreq[:fitFreq.index(',')]
+			# print('Frequency = ' + fitFreq)
 
-			fitPhi = str(sineFit_out.params['phaseShift']);
-			fitPhi = fitPhi[fitPhi.index('=')+1:]
-			fitPhi = fitPhi[:fitPhi.index(',')]
-			print('Phase = ' + fitPhi)
+			# fitPhi = str(sineFit_out.params['phaseShift']);
+			# fitPhi = fitPhi[fitPhi.index('=')+1:]
+			# fitPhi = fitPhi[:fitPhi.index(',')]
+			# print('Phase = ' + fitPhi)
 
-			fitOff = str(sineFit_out.params['offset']);
-			fitOff = fitOff[fitOff.index('=')+1:]
-			fitOff = fitOff[:fitOff.index(',')]
-			print('Offset = ' + fitOff)
+			# fitOff = str(sineFit_out.params['offset']);
+			# fitOff = fitOff[fitOff.index('=')+1:]
+			# fitOff = fitOff[:fitOff.index(',')]
+			# print('Offset = ' + fitOff)
 
-			fitFreq2 = str(sineFit_out.params['frequency2']);
-			fitFreq2 = fitFreq2[fitFreq2.index('=')+1:]
-			fitFreq2 = fitFreq2[:fitFreq2.index(',')]
-			print('smallSig_Frequency = ' + fitFreq2)
+			# fitFreq2 = str(sineFit_out.params['frequency2']);
+			# fitFreq2 = fitFreq2[fitFreq2.index('=')+1:]
+			# fitFreq2 = fitFreq2[:fitFreq2.index(',')]
+			# print('smallSig_Frequency = ' + fitFreq2)
 
-			fitAmp2 = str(sineFit_out.params['amp2']);
-			fitAmp2 = fitAmp2[fitAmp2.index('=')+1:]
-			fitAmp2 = fitAmp2[:fitAmp2.index(',')]
-			print('smallSig_Amplitude = ' + fitAmp2)
+			# fitAmp2 = str(sineFit_out.params['amp2']);
+			# fitAmp2 = fitAmp2[fitAmp2.index('=')+1:]
+			# fitAmp2 = fitAmp2[:fitAmp2.index(',')]
+			# print('smallSig_Amplitude = ' + fitAmp2)
 
-			fitPhi2 = str(sineFit_out.params['phase2']);
-			fitPhi2 = fitPhi2[fitPhi2.index('=')+1:]
-			fitPhi2 = fitPhi2[:fitPhi2.index(',')]
-			print('Phase = ' + fitPhi2)
+			# fitPhi2 = str(sineFit_out.params['phase2']);
+			# fitPhi2 = fitPhi2[fitPhi2.index('=')+1:]
+			# fitPhi2 = fitPhi2[:fitPhi2.index(',')]
+			# print('Phase = ' + fitPhi2)
 
 			# Plot the fit
 			fNameRemnant = str(tStamp) + '_Iremnant'
