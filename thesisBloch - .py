@@ -23,25 +23,39 @@ if __name__ == "__main__":
 		#######################################################################
 
 		# sampling frequncy of unitary (Hz)
-		fs = 1e8
+		# fs = 1e8
+		# fs = 1e8
+		fs = 4e8
+		# fs = 5e4
 		# time to evolve state for (seconds) 
 		eperiod = 1e-5
+		# eperiod = 1e-1
 
 		# Define frequencies for the interacting EM field, detuning, Rabi frequency & phase, all in Hz
 		f0 = gyro;   # lab value for bias field splitting
 		det = 0;    # lab value for detuning
-		rabi = 1e5;    # lab value for Rabi frequency
+		# rabi = 7.5e3;    # lab value for Rabi frequency
+		rabi = 5e4;    # lab value for Rabi frequency
 		phi = 0;
 		f = f0 + det;
 
 		# Small signal params;
-		rabi_2 = 1;
-		f0_2 = 10000;
+		rabi_2 = 50;
+		# f0_2 = 10000;
+		f0_2 = rabi;
+		# f0_2 = rabi/(2*np.pi);
 		det_2 = 0;
 		f_2 = f0_2 + det_2;
 		phi_2 = 0;
-		eperiod = 0.1;
+		# eperiod = 0.1;
 		fitIremnant = False;
+
+		# Landau-Zener params;
+		sweepRate = 2e4;
+		# eperiod = 0.02/2
+
+		# initDet = -eperiod/2 * sweepRate
+		rabi_init = rabi - eperiod/2 * sweepRate
 
 		#######################################################################
 		# B field definitions & simulation code
@@ -50,6 +64,7 @@ if __name__ == "__main__":
 		# define B fields for lab frame
 		# def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi * np.pi/180)
 		def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi)	# For phi in rads
+		# def Bx(t): return 0 * (t/t)	# For phi in rads
 		def By(t): return 0 * (t/t)
 		def Bz(t): return (det - f) * (t/t)
 		# def Bz(t): return (det - f) * (t/t) + 2 * rabi_2 * np.sin(2 * np.pi * f_2 * t - phi_2)
@@ -58,6 +73,18 @@ if __name__ == "__main__":
 		# def Bx(t): return rabi * np.cos(phi * (t/t))
 		# def By(t): return rabi * np.sin(phi * (t/t))
 		# def Bz(t): return det * (t/t)
+		# def Bz(t): return (initDet + sweepRate * t) * (t/t) + 2 * rabi_2 * np.sin(2 * np.pi * f_2 * t - phi_2)
+
+		# # define B fields in first rotating frame for Landau-Zener
+		# def Bx(t): return rabi * np.cos(phi * (t/t))
+		# def Bx(t): return (rabi_init + sweepRate * t) * np.cos(phi * (t/t))
+		# def Bx(t): return 0 * (t/t)
+		# def By(t): return rabi * np.sin(phi * (t/t))
+		# def By(t): return (rabi_init + sweepRate * t) * np.sin(phi * (t/t))
+		# def By(t): return 0 * (t/t)
+		# def Bz(t): return det * (t/t) + 2 * rabi_2 * np.sin(2 * np.pi * np.sqrt(f_2**2 + (rabi_init + sweepRate * t)) * t - phi_2)
+		# def Bz(t): return det * (t/t) + 2 * rabi_2 * np.sin(2 * np.pi * f_2 * t - phi_2)
+		# def Bz(t): return det * (t/t) + rabi_2
 
 		# define generic Hamiltonian parameters with Zeeman splitting and rf dressing
 		params = {"struct": ["custom",           # Fx is a sinusoidal dressing field field
@@ -75,6 +102,7 @@ if __name__ == "__main__":
 
 		# initialise spin 1/2 system in zero (down) state
 		atom = SpinSystem(init="zero")
+		# atom = SpinSystem(init="super")
 
 		# evolve state under system Hamiltonian
 		start = time.time()
@@ -100,7 +128,9 @@ if __name__ == "__main__":
 
 		# plot on Bloch sphere, saving timestamped filename if savePlots is true
 		fNameBloch = str(tStamp) + '_blochplot'
-		atom.bloch_plot2(fNameBloch, pnts, savePlots)  
+		fNameAnim = str(tStamp) + '_blochAnim'
+		atom.bloch_plot2(fNameBloch, pnts, savePlots)
+		# atom.bloch_animate(fNameAnim, pnts, save = savePlots)
 
 		# show all plotted figures
 		plt.show()

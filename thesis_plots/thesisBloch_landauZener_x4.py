@@ -1,5 +1,7 @@
 #!python3
 #from capy import *
+import sys
+sys.path.insert(0, "C:/Users/ccbou2/GitHub/Atomicpy")
 from operators import *
 from qChain import *
 from utility import *
@@ -13,7 +15,9 @@ import git
 import yaml
 from lmfit import minimize, Parameters
 
-savePlots = False;
+savePlots = True;
+# Folder for saving output files
+folder = 'C:/Users/ccbou2/GitHub/HonoursThesis/Figures/'
 
 # Run main script
 if __name__ == "__main__":
@@ -23,25 +27,45 @@ if __name__ == "__main__":
 		#######################################################################
 
 		# sampling frequncy of unitary (Hz)
-		fs = 1e8
+		# fs = 1e8
+		# fs = 1e8
+		fs = 1e5
+		# fs = 5e4
 		# time to evolve state for (seconds) 
-		eperiod = 1e-5
+		# eperiod = 1e-1
+		eperiod = 10/4
+		# eperiod = 1e-1
 
 		# Define frequencies for the interacting EM field, detuning, Rabi frequency & phase, all in Hz
 		f0 = gyro;   # lab value for bias field splitting
 		det = 0;    # lab value for detuning
-		rabi = 1e5;    # lab value for Rabi frequency
+		# rabi = 7.5e3;    # lab value for Rabi frequency
+		rabi = 5e4;    # lab value for Rabi frequency
 		phi = 0;
 		f = f0 + det;
 
 		# Small signal params;
-		rabi_2 = 1;
-		f0_2 = 10000;
+		rabi_2 = 100;
+		# f0_2 = 10000;
+		f0_2 = rabi;
+		# f0_2 = rabi/(2*np.pi);
 		det_2 = 0;
 		f_2 = f0_2 + det_2;
 		phi_2 = 0;
-		eperiod = 0.1;
+		# eperiod = 0.1;
 		fitIremnant = False;
+
+		# Landau-Zener params;
+		# sweepRate = 2e4;
+		# eperiod = 100/rabi_2
+		# t0 = -eperiod/2
+		# sweepRate = 500;
+		sweepRate = 500*4;
+		sweep_init = -sweepRate*eperiod/(2*4)
+		# eperiod = 0.02/2
+
+		# initDet = -eperiod/2 * sweepRate
+		# rabi_init = rabi - eperiod/2 * sweepRate
 
 		#######################################################################
 		# B field definitions & simulation code
@@ -49,15 +73,28 @@ if __name__ == "__main__":
 
 		# define B fields for lab frame
 		# def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi * np.pi/180)
-		def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi)	# For phi in rads
-		def By(t): return 0 * (t/t)
-		def Bz(t): return (det - f) * (t/t)
+		# def Bx(t): return 2 * rabi * np.cos(2 * np.pi * f * t - phi)	# For phi in rads
+		# def Bx(t): return 0 * (t/t)	# For phi in rads
+		# def By(t): return 0 * (t/t)
+		# def Bz(t): return (det - f) * (t/t)
 		# def Bz(t): return (det - f) * (t/t) + 2 * rabi_2 * np.sin(2 * np.pi * f_2 * t - phi_2)
 
-		# # define B fields in first rotating frame
-		# def Bx(t): return rabi * np.cos(phi * (t/t))
-		# def By(t): return rabi * np.sin(phi * (t/t))
+		# define B fields in second, tipped rotating frame for LZ
+		def Bx(t): return rabi_2 * np.cos(phi_2 * (t/t))
+		def By(t): return rabi_2 * np.sin(phi_2 * (t/t))
 		# def Bz(t): return det * (t/t)
+		def Bz(t): return (sweep_init + sweepRate*t)
+
+		# define B fields in second rotating frame for Landau-Zener
+		# def Bx(t): return rabi * np.cos(phi * (t/t))
+		# def Bx(t): return (rabi_init + sweepRate * t) * np.cos(phi * (t/t))
+		# def Bx(t): return 0 * (t/t)
+		# def By(t): return rabi * np.sin(phi * (t/t))
+		# def By(t): return (rabi_init + sweepRate * t) * np.sin(phi * (t/t))
+		# def By(t): return 0 * (t/t)
+		# def Bz(t): return det * (t/t) + 2 * rabi_2 * np.sin(2 * np.pi * np.sqrt(f_2**2 + (rabi_init + sweepRate * t)) * t - phi_2)
+		# def Bz(t): return det * (t/t) + 2 * rabi_2 * np.sin(2 * np.pi * f_2 * t - phi_2)
+		# def Bz(t): return det * (t/t) + rabi_2
 
 		# define generic Hamiltonian parameters with Zeeman splitting and rf dressing
 		params = {"struct": ["custom",           # Fx is a sinusoidal dressing field field
@@ -75,6 +112,7 @@ if __name__ == "__main__":
 
 		# initialise spin 1/2 system in zero (down) state
 		atom = SpinSystem(init="zero")
+		# atom = SpinSystem(init="super")
 
 		# evolve state under system Hamiltonian
 		start = time.time()
@@ -82,7 +120,7 @@ if __name__ == "__main__":
 																					hamiltonian=ham.hamiltonian_cache, # system Hamiltonian
 																					cache=True,                        # whether to cache calculations (faster)
 																					project=meas1["+"],                # projection operator for measurement
-																					bloch=[True, 1])                # Whether to save pnts for bloch state 
+																					bloch=[True, 10])                # Whether to save pnts for bloch state 
 																																						 # and save interval
 		end = time.time()
 
@@ -99,8 +137,26 @@ if __name__ == "__main__":
 		#######################################################################
 
 		# plot on Bloch sphere, saving timestamped filename if savePlots is true
-		fNameBloch = str(tStamp) + '_blochplot'
-		atom.bloch_plot2(fNameBloch, pnts, savePlots)  
+		fNameBloch = 'bloch_rot2LZ_x4rate'
+		vecs = np.array([[1,0,0],[0,0,1]])
+		vec_col = ['royalblue', 'g']
+		view = [70,20]
+		# fig = plt.figure(1, figsize = (9,9))
+		# ax = fig.add_subplot(1,1,1)
+		# ax = atom.bloch_plot2(fNameBloch, fig = fig, ax = ax, points=pnts, view = view, save=savePlots, vecList = vecs, vecColour = vec_col, folder = folder)
+		fig, ax = atom.bloch_plot2(fNameBloch, points=pnts, view = view, save=False, vecList = vecs, vecColour = vec_col, folder = folder)
+		vec1label = r'$\va{\Omega}$'
+		vec2label = r'$\va{B}_z$'
+		# print(type(ax))
+		ax.text3D(0.05, -0.45, 0.1, vec1label, color = vec_col[0], size = 'xx-large')
+		ax.text3D(0.1, -0.05, 0.45, vec2label, color = vec_col[1], size = 'xx-large')
+		# atom.bloch_animate(fNameAnim, pnts, save = savePlots)
+		
+		print('Bloch plot saved to ' + str(folder))
+		path1 = folder + str(fNameBloch) + '.png'
+		path2 = folder + str(fNameBloch) + '.pdf'
+		fig.savefig(path1, dpi=300, transparent=True)
+		fig.savefig(path2, dpi=300, transparent=True)
 
 		# show all plotted figures
 		plt.show()

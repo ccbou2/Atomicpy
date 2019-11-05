@@ -16,6 +16,10 @@ import matplotlib.pyplot as plt
 # define location of archive file
 archivepath = "C:\\Users\\Joshua\\Documents\\Projects\\Code\\Python\\Modules\\qChain\\archive.h5"
 
+# Add Latex physics package to preamble for matplotlib
+plt.rc('text', usetex=True)
+plt.rc('text.latex', preamble=r'\usepackage{amsmath} \usepackage{physics} \usepackage{amssymb}')
+
 
 class SpinSystem(object):
     """
@@ -53,6 +57,8 @@ class SpinSystem(object):
                     self.state = op1["h"] @ self.state
                 elif self.init is "isuper":
                     self.state = op1["s"] @ op1["h"] @ self.state
+                elif self.init is "isuperT":
+                    self.state = op1["sdg"] @ op1["h"] @ self.state
                 elif self.init is "zero":
                     self.state = op1["pz"]
                 elif self.init is "one":
@@ -253,7 +259,7 @@ class SpinSystem(object):
             path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(filename) + '.png'
             bloch.fig.savefig(path, dpi=800, transparent=True)
 
-    def bloch_plot2(self, filename, points=None, save=False):
+    def bloch_plot2(self, filename, save=False, vecList = [], vecColour = [], view = [190,10], points=None, folder = False, fig = False, ax = False):
         """
         Plot the current state on the Bloch sphere using
         qutip. 
@@ -267,19 +273,49 @@ class SpinSystem(object):
             assert len(points) == 3, "System dimension must be spin 1/2 for Bloch sphere plot"
         
         # create instance of 3d plot
-        bloch = Bloch(fig=1, figsize=[9,9], view=[190,10])
+        if not fig or not ax:
+            bloch = Bloch(figsize=[9,9], view=view)
+        else:
+            bloch = Bloch(fig=fig, axes = ax, view=view)
         # add state
         bloch.add_points(points)
+        # bloch.zlabel = [r'$\left|+z\right>$',r'$\left|-z\right>$']
+        bloch.zlabel = [r'$\ket{+_z}$',r'$\ket{-_z}$']
+        # bloch.ylabel = [r'$\ket{+_y}$',r'$\ket{-_y}$']
+        # bloch.ylabel = [r'$\ket{+_y}$',r'$\ket{-_y}$']
+        # print(vecList.shape)
+
+        # add vectors
+        if vecList.shape[1] == 3:
+            if len(vecColour) >= vecList.shape[0] and len(vecColour) > 0:
+                bloch.vector_color = vecColour
+            else:
+                bloch.vector_color = ['#CC6600','royalblue','r','m','g']
+            bloch.add_vectors(vecList)
         # add field vector
         # bloch.add_vectors([1,0,0.15])
-        bloch.add_vectors([1,0,0])
-        bloch.render()
+        # bloch.add_vectors([0,0,1])
+        # bloch.add_vectors([1,0,0])
 
+        # render bloch sphere
+        if not fig or not ax:
+            bloch.render()
+        else:
+            # bloch.render(fig = fig, axes = ax)
+            bloch.render(fig = fig)
+
+        # save output
         if save is True:
-            print('Bloch plot saved to Sim Results folder')
-            path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(filename) + '.png'
-            bloch.fig.savefig(path, dpi=800, transparent=True)
+            if not folder:
+                folder = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/'
+            print('Bloch plot saved to ' + str(folder))
+            path1 = folder + str(filename) + '.png'
+            path2 = folder + str(filename) + '.pdf'
+            bloch.fig.savefig(path1, dpi=800, transparent=True)
+            bloch.fig.savefig(path2, dpi=800, transparent=True)
 
+        # return axes for annotations
+        return bloch.fig, bloch.axes
 
     def get_bloch_vec(self, rho):
         """
@@ -328,9 +364,10 @@ class SpinSystem(object):
         plt.xlim([time[0], time[-1]])
         plt.grid()
         plt.xlabel("Time (s)")
-        plt.ylabel("F_x projection (<F_x>)")
-        plt.annotate(commitText, xy=(0.85,0.97), xycoords = 'axes fraction', fontsize=12)
-        plt.title(filename)
+        plt.ylabel("$F_x$ projection ($<F_x>$)")
+        # plt.annotate(commitText, xy=(0.85,0.97), xycoords = 'axes fraction', fontsize=12)
+        # plt.title(filename)
+        plt.title('Bloch Sphere x Axis Projection')
 
         if save is True:
             path = 'C:/Users/Boundsy/Desktop/Uni Work/PHS2360/Sim Results/' + str(filename) + '.png'
@@ -339,7 +376,7 @@ class SpinSystem(object):
 
         # plt.show()
 
-    def bloch_animate(self, pnts, name="Bloch_animate"):
+    def bloch_animate(self, filename, pnts, save = False, name="Bloch_animate"):
         """
         Animates the path of a state through the set of pure states - requires ffmpeg
         """
@@ -366,7 +403,9 @@ class SpinSystem(object):
         ani = animation.FuncAnimation(fig, animate, np.arange(len(pnts[0])),
                             init_func=init, repeat=False)
         
-        ani.save(name + ".mp4", fps=20)
+        if save:
+            file = 'C:/Users/ccbou2/GitHub/Honours2019/Final presentation files' + str(filename)
+            ani.save(file + ".mp4", fps=20)
 
 
 def field_gen(field_params):
